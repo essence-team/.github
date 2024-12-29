@@ -115,7 +115,60 @@ Rel(smartParser, postgres, "Чтение и запись результатов 
 ## 7. Приложения
 - Текстовый лог (консольные логи) и примеры ссылок на каналы в формате CSV.
 - Дополнительные материалы по настройке Docker и развёртыванию (файлы `.env`, скрипты `deploy.sh` и т.д.).
-- *(Здесь можно вставить схему базы данных, ER-диаграмму или что-то подобное.)*
+
+``` mermaid
+erDiagram
+    AGGREGATED_POSTS }o--|| POSTS : "FK post_link -> posts.post_link"
+    POSTS }o--|| CHANNELS : "FK channel_link -> channels.channel_link"
+    SUBSCRIPTIONS }o--|| USERS : "FK user_id -> users.user_id"
+    USER_CHANNELS }o--|| USERS : "FK user_id -> users.user_id"
+    USER_CHANNELS }o--|| CHANNELS : "FK channel_link -> channels.channel_link"
+
+
+    AGGREGATED_POSTS {
+        STRING post_link PK
+        FLOAT importance_score
+        STRING cluster_label
+    }
+
+    CHANNELS {
+        STRING channel_link PK
+        INT subs_cnt
+    }
+
+    SUBSCRIPTIONS {
+        STRING id PK
+        STRING user_id
+        DATETIME start_sub
+        DATETIME end_sub
+        BOOLEAN is_active
+        INT duration_days
+    }
+
+    USERS {
+        STRING user_id PK
+        STRING username
+        STRING digest_freq
+        INT digest_time
+    }
+
+    USER_CHANNELS {
+        STRING user_id PK
+        STRING channel_link PK
+    }
+
+    POSTS {
+        STRING post_link PK
+        STRING channel_link
+        TEXT text
+        TEXT title
+        ARRAY float_embedding
+        INT amount_reactions
+        INT amount_comments
+        DATETIME published_at
+    }
+
+```
 
 ---
 
