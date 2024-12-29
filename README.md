@@ -13,9 +13,33 @@
 
 Каждый репозиторий содержит документацию, инструкции по развёртыванию, примеры конфигураций и среду для запуска (Docker + Docker Compose). В итоговом PDF-отчёте мы собрали всю необходимую информацию, включая примеры запуска и результаты экспериментов.
 
-*(Здесь можно вставить схему общей архитектуры проекта в виде рисунка, например “Схема архитектуры EssenceBot”.)*
-
+```mermaid
 ---
+title: "EssenceBot C4: Container Diagram"
+---
+
+C4Container
+title EssenceBot Container Diagram
+
+Person(user, "Пользователь Telegram", "Взаимодействует с ботом через Telegram")
+
+SystemExt(telegram, "Telegram", "Внешняя система", "Позволяет отправлять и получать сообщения через Bot API")
+
+System_Boundary(essenceSystem, "Essence System") {
+    Container(essenceBot, "Essence Bot", "Aiogram (Python)", "Телеграм-бот, который обрабатывает команды пользователя, отправляет запросы бэкенду и формирует ответы")
+    Container(essenceBackend, "Essence Backend", "FastAPI (Python)", "Управляет логикой проекта: хранит настройки пользователей и каналов, формирует дайджесты, общается со Smart-Parser")
+    ContainerDb(postgres, "PostgreSQL", "СУБД", "Хранит данные о пользователях, каналах, постах и векторных представлениях")
+    Container(smartParser, "Smart-Parser", "FastAPI (Python)", "Занимается парсингом Telegram-каналов, суммаризацией, вычислением эмбеддингов и кластеризацией")
+}
+
+Rel(user, essenceBot, "Вводит команды, читает дайджесты")
+Rel(essenceBot, telegram, "Отправка и получение сообщений (Telegram Bot API)")
+Rel(essenceBot, essenceBackend, "REST-запросы для получения и записи данных")
+Rel(essenceBackend, smartParser, "Запросы для парсинга, суммаризации, кластеризации и расчёта метрик")
+Rel(essenceBackend, postgres, "Чтение и запись данных (пользователи, каналы, посты, эмбеддинги)")
+Rel(smartParser, postgres, "Чтение и запись результатов анализа постов")
+```
+
 ## 2. Related Work и обзор существующих подходов 
 
 ### 2.1 Существующие решения
